@@ -23,6 +23,8 @@ public class OfferItem {
 
     private int quantity;
 
+    private Money totalCost;
+
     // discount
     private String discountCause;
 
@@ -30,25 +32,24 @@ public class OfferItem {
 
     public OfferItem(String productId, Money productPrice, String productName, Date productSnapshotDate, String productType,
             int quantity) {
-        this(productId, productPrice, productName, productSnapshotDate, productType, quantity, null, null);
+        this(productId, productPrice, productName, productSnapshotDate, productType, quantity, null, null, null);
     }
 
     public OfferItem(String productId, Money productPrice, String productName, Date productSnapshotDate, String productType,
-            int quantity, Money discount, String discountCause) {
+            int quantity, Money discount, String discountCause, String currency) {
         product = new Product(productId, productPrice, productName, productSnapshotDate, productType);
 
         this.quantity = quantity;
         this.discount = discount;
         this.discountCause = discountCause;
-    }
 
-    public Money calculateTotalCost(){
         BigDecimal discountValue = new BigDecimal(0);
         if (discount != null) {
             discountValue = discountValue.add(discount.getDenomination());
         }
-
-        return new Money("$",  product.getProductPrice().getDenomination().multiply(new BigDecimal(quantity)).subtract(discountValue));
+        this.totalCost = new Money(currency, product.getProductPrice().
+                                                    getDenomination().multiply(new BigDecimal(quantity)).
+                                                    subtract(discountValue));
     }
 
     public Product getProduct() {
@@ -64,6 +65,8 @@ public class OfferItem {
     public int getQuantity() {
         return quantity;
     }
+
+    public Money getTotalCost() { return totalCost; }
 
     @Override
     public int hashCode() {
@@ -110,13 +113,11 @@ public class OfferItem {
 
         BigDecimal max;
         BigDecimal min;
-        Money totalCost = calculateTotalCost();
-        Money otherTotalCost = other.calculateTotalCost();
-        if (totalCost.getDenomination().compareTo(otherTotalCost.getDenomination()) > 0) {
+        if (totalCost.getDenomination().compareTo(other.totalCost.getDenomination()) > 0) {
             max = totalCost.getDenomination();
-            min = otherTotalCost.getDenomination();
+            min = other.totalCost.getDenomination();
         } else {
-            max = otherTotalCost.getDenomination();
+            max = other.totalCost.getDenomination();
             min = totalCost.getDenomination();
         }
 
