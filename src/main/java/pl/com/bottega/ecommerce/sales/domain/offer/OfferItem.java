@@ -31,8 +31,6 @@ public class OfferItem {
 
     private int quantity;
 
-    private Money totalCost;
-
     // discount
     private String discountCause;
 
@@ -54,14 +52,15 @@ public class OfferItem {
         this.quantity = quantity;
         this.discount = discount;
         this.discountCause = discountCause;
+    }
 
+    public Money calculateTotalCost(){
         BigDecimal discountValue = new BigDecimal(0);
         if (discount != null) {
             discountValue = discountValue.add(discount.getDenomination());
         }
 
-        this.totalCost = new Money("$", productPrice.getDenomination().multiply(new BigDecimal(quantity))
-                                     .subtract(discountValue));
+        return new Money("$",  productPrice.getDenomination().multiply(new BigDecimal(quantity)).subtract(discountValue));
     }
 
     public String getProductId() {
@@ -84,10 +83,6 @@ public class OfferItem {
         return productType;
     }
 
-    public Money getTotalCost() {
-        return totalCost;
-    }
-
     public Money getDiscount() { return discount; }
 
     public String getDiscountCause() {
@@ -101,7 +96,7 @@ public class OfferItem {
     @Override
     public int hashCode() {
         return Objects.hash(discount, discountCause, productId, productName, productPrice, productSnapshotDate, productType,
-                quantity, totalCost);
+                quantity);
     }
 
     @Override
@@ -123,8 +118,7 @@ public class OfferItem {
                && Objects.equals(productPrice, other.productPrice)
                && Objects.equals(productSnapshotDate, other.productSnapshotDate)
                && Objects.equals(productType, other.productType)
-               && quantity == other.quantity
-               && Objects.equals(totalCost, other.totalCost);
+               && quantity == other.quantity;
     }
 
     /**
@@ -171,11 +165,13 @@ public class OfferItem {
 
         BigDecimal max;
         BigDecimal min;
-        if (totalCost.getDenomination().compareTo(other.totalCost.getDenomination()) > 0) {
+        Money totalCost = calculateTotalCost();
+        Money otherTotalCost = other.calculateTotalCost();
+        if (totalCost.getDenomination().compareTo(otherTotalCost.getDenomination()) > 0) {
             max = totalCost.getDenomination();
-            min = other.totalCost.getDenomination();
+            min = otherTotalCost.getDenomination();
         } else {
-            max = other.totalCost.getDenomination();
+            max = otherTotalCost.getDenomination();
             min = totalCost.getDenomination();
         }
 
