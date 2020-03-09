@@ -19,15 +19,7 @@ import java.util.Objects;
 public class OfferItem {
 
     // product
-    private String productId;
-
-    private Money productPrice;
-
-    private String productName;
-
-    private Date productSnapshotDate;
-
-    private String productType;
+    private Product product;
 
     private int quantity;
 
@@ -43,11 +35,7 @@ public class OfferItem {
 
     public OfferItem(String productId, Money productPrice, String productName, Date productSnapshotDate, String productType,
             int quantity, Money discount, String discountCause) {
-        this.productId = productId;
-        this.productPrice = productPrice;
-        this.productName = productName;
-        this.productSnapshotDate = productSnapshotDate;
-        this.productType = productType;
+        product = new Product(productId, productPrice, productName, productSnapshotDate, productType);
 
         this.quantity = quantity;
         this.discount = discount;
@@ -60,27 +48,11 @@ public class OfferItem {
             discountValue = discountValue.add(discount.getDenomination());
         }
 
-        return new Money("$",  productPrice.getDenomination().multiply(new BigDecimal(quantity)).subtract(discountValue));
+        return new Money("$",  product.getProductPrice().getDenomination().multiply(new BigDecimal(quantity)).subtract(discountValue));
     }
 
-    public String getProductId() {
-        return productId;
-    }
-
-    public Money getProductPrice() {
-        return productPrice;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public Date getProductSnapshotDate() {
-        return productSnapshotDate;
-    }
-
-    public String getProductType() {
-        return productType;
+    public Product getProduct() {
+        return product;
     }
 
     public Money getDiscount() { return discount; }
@@ -95,8 +67,7 @@ public class OfferItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(discount, discountCause, productId, productName, productPrice, productSnapshotDate, productType,
-                quantity);
+        return Objects.hash(product, discount, discountCause, quantity);
     }
 
     @Override
@@ -111,14 +82,10 @@ public class OfferItem {
             return false;
         }
         OfferItem other = (OfferItem) obj;
-        return Objects.equals(discount, other.discount)
-               && Objects.equals(discountCause, other.discountCause)
-               && Objects.equals(productId, other.productId)
-               && Objects.equals(productName, other.productName)
-               && Objects.equals(productPrice, other.productPrice)
-               && Objects.equals(productSnapshotDate, other.productSnapshotDate)
-               && Objects.equals(productType, other.productType)
-               && quantity == other.quantity;
+        return Objects.equals(product, other.product)
+                && Objects.equals(discount, other.discount)
+                && Objects.equals(discountCause, other.discountCause)
+                && quantity == other.quantity;
     }
 
     /**
@@ -129,33 +96,11 @@ public class OfferItem {
      * @return
      */
     public boolean sameAs(OfferItem other, double delta) {
-        if (productPrice == null) {
-            if (other.productPrice != null) {
+        if (product == null) {
+            if (other != null) {
                 return false;
             }
-        } else if (!productPrice.equals(other.productPrice)) {
-            return false;
-        }
-        if (productName == null) {
-            if (other.productName != null) {
-                return false;
-            }
-        } else if (!productName.equals(other.productName)) {
-            return false;
-        }
-
-        if (productId == null) {
-            if (other.productId != null) {
-                return false;
-            }
-        } else if (!productId.equals(other.productId)) {
-            return false;
-        }
-        if (productType == null) {
-            if (other.productType != null) {
-                return false;
-            }
-        } else if (!productType.equals(other.productType)) {
+        } else if (!product.equals(other.product)) {
             return false;
         }
 
